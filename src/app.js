@@ -6,9 +6,10 @@ app.use("/test", (req, resp)=>{
     resp.send("Hello from server!!");
 })
 
-app.get("/user", (req, resp)=>{
-    console.log("Users are fetched!!");
-    resp.send("Fetched users!!");
+app.get("/user/:userId/:name/:password", (req, resp)=>{
+    console.log("User data is fetched!!");
+    const reqData = req.params;
+    resp.send(reqData);
 });
 
 app.post("/user", (req, resp)=>{
