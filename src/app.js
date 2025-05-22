@@ -1,6 +1,18 @@
 const express = require("express");
+const connectDB = require("./config/database");
 
 const app = express();
+// Keep track of order 
+// --------------------------------------------------------------Database Connection-------------------------------------
+connectDB().then(()=>{
+    console.log("Database connection is successfull!!");
+    app.listen(3000, ()=>{
+        console.log("Server is listning on port 3000...");
+    })
+}).catch(error=>{
+    console.log("Error while connecting database", error);
+});
+
 
 
 // -----------------------------------------------------------Route Handling-----------------------------------------------
@@ -38,19 +50,19 @@ const app = express();
 // app.use("/user", userRoutes);
 
 // ------------------------------------------------------------Error Handling----------------------------------------------
-app.get("/user/getUserData", (req, resp)=>{
-    throw new Error("Error");
-})
+// app.get("/user/getUserData", (req, resp)=>{
+//     throw new Error("Error");
+// });
+
+
 app.use("/", (err, req, resp, next)=>{
     if(err){
         resp.status(500).send("Something went wrong!!");
     }
     resp.send("Hello from server!!");
-})
+});
 
 
 
-app.listen(3000, ()=>{
-    console.log("Server is listning on port 3000...");
-})
+
 
