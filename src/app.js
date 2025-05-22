@@ -1,13 +1,35 @@
 const express = require("express");
 const connectDB = require("./config/database");
+const User = require("./models/user");
 
 const app = express();
-// Keep track of order 
-// --------------------------------------------------------------Database Connection-------------------------------------
+// Keep track of order always
+
+
+app.post("/signup", async(req, resp)=>{
+    console.log("User has been created!!"); 
+    const user = new User({
+        firstName: "Diksha",
+        lastName: "Deshmukh",
+        age: 23,
+        password: "Diksha@123",
+    });
+    try{
+        const result = await user.save();
+        console.log("User has been created!!", result);
+        resp.status(201).send(result);
+    }catch(error){
+        console.log("Error while creating user", error);
+        resp.status(500).send("Error while creating user");
+    }
+});
+
+
+// --------------------------------------------------------------Database and server Connection-------------------------------------
 connectDB().then(()=>{
     console.log("Database connection is successfull!!");
     app.listen(3000, ()=>{
-        console.log("Server is listning on port 3000...");
+        console.log("Server is listening on port 3000...");
     })
 }).catch(error=>{
     console.log("Error while connecting database", error);
@@ -55,12 +77,12 @@ connectDB().then(()=>{
 // });
 
 
-app.use("/", (err, req, resp, next)=>{
-    if(err){
-        resp.status(500).send("Something went wrong!!");
-    }
-    resp.send("Hello from server!!");
-});
+// app.use("/", (err, req, resp, next)=>{
+//     if(err){
+//         resp.status(500).send("Something went wrong!!");
+//     }
+//     resp.send("Hello from server!!");
+// });
 
 
 
