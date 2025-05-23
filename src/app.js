@@ -2,25 +2,49 @@ const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 
+
 const app = express();
 // Keep track of order always
+app.use(express.json());
 
 
+// User sign up
 app.post("/signup", async(req, resp)=>{
-    console.log("User has been created!!"); 
-    const user = new User({
-        firstName: "Diksha",
-        lastName: "Deshmukh",
-        age: 23,
-        password: "Diksha@123",
-    });
-    try{
+    const user = new User(req.body);
+    try {
         const result = await user.save();
         console.log("User has been created!!", result);
         resp.status(201).send(result);
-    }catch(error){
+    } catch(error){
         console.log("Error while creating user", error);
         resp.status(500).send("Error while creating user");
+    }
+});
+
+// Get all users
+app.get("/users", async (req, resp)=>{
+    try {
+        const users = await User.find({});
+        resp.status(200).send(users);
+    }catch(error){
+        resp.status(500).send(error);
+    }
+});
+
+
+// Get user by mail id
+app.get("/user", async(req, resp)=>{
+    try{
+        const reqBody = req.body.emailId;
+        const user = await User.where({emailId: reqBody});
+        if(user){
+            resp.status(200).send(user);
+        } else {
+            resp.status(204).send();
+        }
+    }catch(error){
+        console.log(error);
+        resp.status(500).send(error)
     }
 });
 
@@ -34,57 +58,3 @@ connectDB().then(()=>{
 }).catch(error=>{
     console.log("Error while connecting database", error);
 });
-
-
-
-// -----------------------------------------------------------Route Handling-----------------------------------------------
-// app.use("/test", (req, resp)=>{
-//     resp.send("Hello from server!!");
-// })
-
-// app.get("/user/:userId/:name/:password", (req, resp)=>{
-//     console.log("User data is fetched!!");
-//     const reqData = req.params;
-//     resp.send(reqData);
-// });
-
-// app.post("/user", (req, resp)=>{
-//     console.log("User has been created!!");
-//     resp.send("User has been saved!!");
-// });
-
-// app.delete("/user", (req, resp)=>{
-//     console.log("User has been deleted!!");
-//     resp.send("User is deleted!!");
-// });
-
-// app.use("/", (req, resp)=>{
-//     resp.send("Server is on default route!!");
-// });
-
-
-
-// -----------------------------------------------------------Middlewares-------------------------------------------------
-// const {adminRoutes,userRoutes} = require("./middlewares/admin");
-// A Auth middleware that handles all (POST, GET, PATCH, DELETE) the req which are started with /admin and /admin/*
-// app.use("/admin", adminRoutes);
-// A user middleware that handles all (POST, GET, PATCH, DELETE) the req which are started with /user and /user/*
-// app.use("/user", userRoutes);
-
-// ------------------------------------------------------------Error Handling----------------------------------------------
-// app.get("/user/getUserData", (req, resp)=>{
-//     throw new Error("Error");
-// });
-
-
-// app.use("/", (err, req, resp, next)=>{
-//     if(err){
-//         resp.status(500).send("Something went wrong!!");
-//     }
-//     resp.send("Hello from server!!");
-// });
-
-
-
-
-
