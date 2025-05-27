@@ -8,6 +8,8 @@ const jsonWebToken = require("jsonwebtoken");
 const User = require("./models/user");
 const {validateSignUpData}  = require("./utils/validations");
 
+const {userAuth} = require("./middlewares/auth");
+
 
 const app = express();
 // Keep track of order always
@@ -56,28 +58,12 @@ app.post("/login", async(req, resp)=>{
     }
 });
 
-app.get("/profile", async(req, resp)=>{
+app.get("/profile", userAuth, async(req, resp)=>{
     try{
-        const {token} = req.cookies;
-        if(!token){
-           throw new Error("User is not authenticated , please login!!");
-        }
-        const verifiedToken = await jsonWebToken.verify(token, "DD@PRIVETKey#25");
-        if(verifiedToken){
-            const {_id} = verifiedToken;
-            const user = await User.findById({_id});
-            if(!user){
-                throw new Error("User not found!!");
-            } else {
-                resp.send(user);
-            }
-        } else {
-            throw new Error("Please login again!!");
-        }
-
-
+        const user = req.user;
+        resp.send(user);
     }catch(error){
-        resp.status(500).send(error);
+        resp.status(400).send(error);
     }
 });
 
