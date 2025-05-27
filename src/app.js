@@ -1,16 +1,19 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const bcrypt = require("bcrypt");
-const validate = require("validator");
+const cookieParser = require("cookie-parser");
+const jsonWebToken = require("jsonwebtoken");
+
 
 const User = require("./models/user");
-
 const {validateSignUpData}  = require("./utils/validations");
 
 
 const app = express();
 // Keep track of order always
 app.use(express.json());
+app.use(cookieParser());
+
 
 
 // User sign up
@@ -34,6 +37,7 @@ app.post("/login", async(req, resp)=>{
     try{
         const {emailId, password} = req.body;
         const user = await User.findOne({emailId});
+        
         if(!user){
             throw new Error("Invalid login credentils!!");
         } else {
@@ -41,12 +45,39 @@ app.post("/login", async(req, resp)=>{
             if(!isPasswordValid){
                 throw new Error("Invalid login credentils!!");
             } else {
+                const token = await jsonWebToken.sign({_id: user._id},"DD@PRIVETKey#25");
+                resp.cookie("token", token, {maxAge: 86400000 });
                 resp.status(200).send("Logged in successfully!!");
             }
         }
     } catch(error){
         console.log("Error while logging in user", error);
         resp.status(500).send("Error while login");
+    }
+});
+
+app.get("/profile", async(req, resp)=>{
+    try{
+        const {token} = req.cookies;
+        if(!token){
+           throw new Error("User is not authenticated , please login!!");
+        }
+        const verifiedToken = await jsonWebToken.verify(token, "DD@PRIVETKey#25");
+        if(verifiedToken){
+            const {_id} = verifiedToken;
+            const user = await User.findById({_id});
+            if(!user){
+                throw new Error("User not found!!");
+            } else {
+                resp.send(user);
+            }
+        } else {
+            throw new Error("Please login again!!");
+        }
+
+
+    }catch(error){
+        resp.status(500).send(error);
     }
 });
 
