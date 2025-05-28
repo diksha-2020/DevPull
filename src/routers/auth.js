@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const {validateSignUpData}  = require("../utils/validations");
 const User = require("../models/user");
 
+
 const authRouter = express.Router();
 
 // User sign up
@@ -43,6 +44,33 @@ authRouter.post("/login", async(req, resp, next)=>{
     } catch(error){
         console.log("Error while logging in user", error);
         resp.status(500).send("Error while login");
+    }
+});
+
+// User logout
+authRouter.delete("/logout", async(req, resp, next)=>{
+    try{
+        // TODO: Clean up from DB or other resourse used by user
+        resp.cookie("access_token", null, {expires: new Date(Date.now())}).send("Successfully logged out!!");
+    }catch(error){
+        resp.status(500).send("Error while logging out" + error.message);
+    }
+});
+
+// Forget password
+authRouter.patch("/forgetPassword", async(req, resp, next)=>{
+    try{
+        const {emailId, password} = req.body;
+        const user = await User.findOne({emailId});
+        if(!user){
+            throw new Error("MailId is not associated with any user!");
+        }
+        const passwordHashToUpdate = await bcrypt.hash(password, 10);
+        user.password = passwordHashToUpdate;
+        await user.save();
+        resp.send(`${user.firstName} , your password reset done successfully!!`);
+    }catch(error){
+        resp.status(400).send(error.message);
     }
 });
 

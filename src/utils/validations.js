@@ -10,12 +10,13 @@ function validateSignUpData(req){
     } else if(!validate.isEmail(emailId)){
         throw new Error("Email id is not valid!!");
     } 
-    // else {
-    //     const isPasswordStrong = validate.isStrongPassword(password);
-    //     if(!isPasswordStrong){
-    //         throw new Error("Passord is not strong!!");
-    //     }
-    // }
 }
 
-module.exports = {validateSignUpData};
+function isProfileUpdateValid(dataToEdit){
+    const ALLOWED_FIELDS = ["skills", "about", "avatarUrl", "lastName", "firstName", "age"];
+    const areFieldsAllowed = Object.keys(dataToEdit).every((field) => ALLOWED_FIELDS.includes(field));
+    console.log("^areFieldsAllowed", areFieldsAllowed);
+    return areFieldsAllowed;
+}
+
+module.exports = {validateSignUpData, isProfileUpdateValid};

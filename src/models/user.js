@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "Tell about yourself..."
     },
-    skils: {
+    skills: {
         type: [String],
     }
 });
