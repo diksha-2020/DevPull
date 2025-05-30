@@ -10,10 +10,12 @@ app.use(cookieParser());
 const authRouter = require("./routers/auth");
 const profileRouter = require("./routers/profile");
 const requestRouter = require("./routers/request");
+const userRouter = require("./routers/user");
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
+app.use("/", userRouter);
 
 
 // --------------------------------------------------------------Database and server Connection-------------------------------------

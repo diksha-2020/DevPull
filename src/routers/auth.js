@@ -11,15 +11,18 @@ const authRouter = express.Router();
 authRouter.post("/signup", async(req, resp, next)=>{
     const user = new User(req.body);
     try {
+        const userEmailId = req.body.emailId;
+        const isUserAlreadyExist = await User.findOne({emailId: userEmailId});
+        if(isUserAlreadyExist){
+            return resp.status(200).send("User already exist. Please login!!");
+        }
         validateSignUpData(req);
         const hashedPassword = await bcrypt.hash(user.password, 10);
         user.password = hashedPassword;
         const result = await user.save();
-        console.log("User has been created!!", result);
         resp.status(201).send(result);
     } catch(error){
-        console.log("Error while creating user", error);
-        resp.status(500).send("Error while creating user");
+        resp.status(500).send("Error while creating user " + error.message);
     }
 });
 
@@ -30,7 +33,7 @@ authRouter.post("/login", async(req, resp, next)=>{
         const user = await User.findOne({emailId});
         
         if(!user){
-            throw new Error("Invalid login credentils!!");
+            throw new Error("Invalid login credentils!");
         } else {
             const isPasswordValid = await user.validatePassword(password);
             if(!isPasswordValid){
@@ -42,8 +45,7 @@ authRouter.post("/login", async(req, resp, next)=>{
             }
         }
     } catch(error){
-        console.log("Error while logging in user", error);
-        resp.status(500).send("Error while login");
+        resp.status(500).send("Error while login " + error.message);
     }
 });
 
